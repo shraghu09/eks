@@ -47,7 +47,6 @@ resource "aws_iam_openid_connect_provider" "eks-oidc" {
 
   url = data.tls_certificate.eks-certificate[0].url
 }
-
 # EKS Add-ons
 resource "aws_eks_addon" "eks-addons" {
   for_each = var.is-eks-cluster-enabled ? {
