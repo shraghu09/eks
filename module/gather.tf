@@ -1,4 +1,3 @@
-```hcl
 # OIDC Assume Role Policy Document
 data "aws_iam_policy_document" "eks_oidc_assume_role_policy" {
   count = var.is-eks-cluster-enabled ? 1 : 0
@@ -21,4 +20,3 @@ data "aws_iam_policy_document" "eks_oidc_assume_role_policy" {
     }
   }
 }
-```
