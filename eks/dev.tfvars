@@ -24,6 +24,7 @@ cluster-name               = "eks-cluster"
 endpoint-private-access    = true
 endpoint-public-access     = false
 ondemand_instance_types    = ["t3a.medium"]
+spot_instance_types = ["t3.medium"]
 desired_capacity_on_demand = "1"
 min_capacity_on_demand     = "1"
 max_capacity_on_demand     = "5"
