@@ -1,4 +1,3 @@
-```hcl
 # EKS Cluster
 resource "aws_eks_cluster" "eks" {
   count    = var.is-eks-cluster-enabled ? 1 : 0
@@ -104,4 +103,4 @@ resource "aws_eks_addon" "eks-addons" {
     aws_eks_node_group.ondemand-node
   ]
 }
-```
+
