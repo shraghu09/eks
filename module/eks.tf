@@ -1,4 +1,3 @@
-```hcl
 # EKS Cluster
 resource "aws_eks_cluster" "eks" {
   count    = var.is-eks-cluster-enabled ? 1 : 0
@@ -29,12 +28,14 @@ resource "aws_eks_cluster" "eks" {
   }
 }
 
-# OIDC Provider
+# OIDC TLS Certificate
 data "tls_certificate" "eks-certificate" {
   count = var.is-eks-cluster-enabled ? 1 : 0
-  url   = aws_eks_cluster.eks[0].identity[0].oidc[0].issuer
+
+  url = aws_eks_cluster.eks[0].identity[0].oidc[0].issuer
 }
 
+# OIDC Provider
 resource "aws_iam_openid_connect_provider" "eks-oidc" {
   count = var.is-eks-cluster-enabled ? 1 : 0
 
@@ -44,7 +45,7 @@ resource "aws_iam_openid_connect_provider" "eks-oidc" {
     data.tls_certificate.eks-certificate[0].certificates[0].sha1_fingerprint
   ]
 
-  url = data.tls_certificate.eks-certificate[0].url
+  url = aws_eks_cluster.eks[0].identity[0].oidc[0].issuer
 }
 
 # EKS Add-ons
@@ -103,4 +104,3 @@ resource "aws_eks_node_group" "ondemand-node" {
     aws_eks_cluster.eks
   ]
 }
-```
