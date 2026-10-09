@@ -1,3 +1,4 @@
+```hcl
 # EKS Cluster
 resource "aws_eks_cluster" "eks" {
   count    = var.is-eks-cluster-enabled ? 1 : 0
@@ -28,7 +29,7 @@ resource "aws_eks_cluster" "eks" {
   }
 }
 
-# OIDC TLS Certificate
+# OIDC TLS Certificate - declare only once
 data "tls_certificate" "eks-certificate" {
   count = var.is-eks-cluster-enabled ? 1 : 0
 
@@ -47,20 +48,6 @@ resource "aws_iam_openid_connect_provider" "eks-oidc" {
 
   url = data.tls_certificate.eks-certificate[0].url
 }
-# EKS Add-ons
-resource "aws_eks_addon" "eks-addons" {
-  for_each = var.is-eks-cluster-enabled ? {
-    for idx, addon in var.addons : idx => addon
-  } : {}
-
-  cluster_name  = aws_eks_cluster.eks[0].name
-  addon_name    = each.value.name
-  addon_version = each.value.version
-
-  depends_on = [
-    aws_eks_node_group.ondemand-node
-  ]
-}
 
 # On-Demand Node Group
 resource "aws_eks_node_group" "ondemand-node" {
@@ -68,8 +55,7 @@ resource "aws_eks_node_group" "ondemand-node" {
 
   cluster_name    = aws_eks_cluster.eks[0].name
   node_group_name = "${var.cluster-name}-on-demand-nodes"
-
-  node_role_arn = aws_iam_role.eks-nodegroup-role[0].arn
+  node_role_arn   = aws_iam_role.eks-nodegroup-role[0].arn
 
   scaling_config {
     desired_size = var.desired_capacity_on_demand
@@ -103,3 +89,19 @@ resource "aws_eks_node_group" "ondemand-node" {
     aws_eks_cluster.eks
   ]
 }
+
+# EKS Add-ons
+resource "aws_eks_addon" "eks-addons" {
+  for_each = var.is-eks-cluster-enabled ? {
+    for idx, addon in var.addons : idx => addon
+  } : {}
+
+  cluster_name  = aws_eks_cluster.eks[0].name
+  addon_name    = each.value.name
+  addon_version = each.value.version
+
+  depends_on = [
+    aws_eks_node_group.ondemand-node
+  ]
+}
+```
