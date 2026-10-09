@@ -45,7 +45,7 @@ resource "aws_iam_openid_connect_provider" "eks-oidc" {
     data.tls_certificate.eks-certificate[0].certificates[0].sha1_fingerprint
   ]
 
-  url = aws_eks_cluster.eks[0].identity[0].oidc[0].issuer
+  url = data.tls_certificate.eks-certificate[0].url
 }
 
 # EKS Add-ons
