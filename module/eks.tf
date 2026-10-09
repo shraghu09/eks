@@ -1,3 +1,4 @@
+```hcl
 # EKS Cluster
 resource "aws_eks_cluster" "eks" {
   count    = var.is-eks-cluster-enabled ? 1 : 0
@@ -29,21 +30,28 @@ resource "aws_eks_cluster" "eks" {
 }
 
 # OIDC Provider
+data "tls_certificate" "eks-certificate" {
+  count = var.is-eks-cluster-enabled ? 1 : 0
+  url   = aws_eks_cluster.eks[0].identity[0].oidc[0].issuer
+}
+
 resource "aws_iam_openid_connect_provider" "eks-oidc" {
+  count = var.is-eks-cluster-enabled ? 1 : 0
+
   client_id_list = ["sts.amazonaws.com"]
 
   thumbprint_list = [
-    data.tls_certificate.eks-certificate.certificates[0].sha1_fingerprint
+    data.tls_certificate.eks-certificate[0].certificates[0].sha1_fingerprint
   ]
 
-  url = data.tls_certificate.eks-certificate.url
+  url = data.tls_certificate.eks-certificate[0].url
 }
 
 # EKS Add-ons
 resource "aws_eks_addon" "eks-addons" {
-  for_each = {
+  for_each = var.is-eks-cluster-enabled ? {
     for idx, addon in var.addons : idx => addon
-  }
+  } : {}
 
   cluster_name  = aws_eks_cluster.eks[0].name
   addon_name    = each.value.name
@@ -56,6 +64,8 @@ resource "aws_eks_addon" "eks-addons" {
 
 # On-Demand Node Group
 resource "aws_eks_node_group" "ondemand-node" {
+  count = var.is-eks-cluster-enabled ? 1 : 0
+
   cluster_name    = aws_eks_cluster.eks[0].name
   node_group_name = "${var.cluster-name}-on-demand-nodes"
 
@@ -93,3 +103,4 @@ resource "aws_eks_node_group" "ondemand-node" {
     aws_eks_cluster.eks
   ]
 }
+```
