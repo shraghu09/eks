@@ -93,4 +93,3 @@ resource "aws_eks_node_group" "ondemand-node" {
     aws_eks_cluster.eks
   ]
 }
-```
