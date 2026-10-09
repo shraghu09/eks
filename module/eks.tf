@@ -1,4 +1,3 @@
-hcl
 # EKS Cluster
 resource "aws_eks_cluster" "eks" {
   count    = var.is-eks-cluster-enabled ? 1 : 0
